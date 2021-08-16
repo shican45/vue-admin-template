@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
+/* eslint-disable */
 Vue.use(Router)
 
 /* Layout */
@@ -53,6 +53,64 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: 'Dashboard', icon: 'dashboard' }
     }]
+  },
+
+  {
+    path: '/teacher',
+    component: Layout,
+    redirect: '/teacher/table',
+    name: '教师模块',
+    meta: { title: '教师模块', icon: 'example' },
+    children: [
+      {
+        path: 'table',
+        name: 'list',
+        component: () => import('@/views/teacherList'),
+        meta: { title: '教师列表', icon: 'table' }
+      },
+      {
+        path: 'save',
+        name: 'save',
+        component: () => import('@/views/save'),
+        meta: { title: '教师添加', icon: 'tree' }
+      },
+      {
+        path: 'edit/:id',
+        name: 'edit',
+        component: () => import('@/views/save'),
+        meta: { title: '教师修改', icon: 'tree' },
+        hidden: true
+      }
+    ]
+  },
+
+  {
+    path: '/student',
+    component: Layout,
+    redirect: '/student/table',
+    name: '学生模块',
+    meta: { title: '学生模块', icon: 'example' },
+    children: [
+      {
+        path: 'table',
+        name: 'list',
+        component: () => import('@/views/student/index'),
+        meta: { title: '学生列表', icon: 'table' }
+      },
+      {
+        path: 'save',
+        name: 'save',
+        component: () => import('@/views/save'),
+        meta: { title: '学生添加', icon: 'tree' }
+      },
+      {
+        path: 'edit/:id',
+        name: 'edit',
+        component: () => import('@/views/save'),
+        meta: { title: '学生修改', icon: 'tree' },
+        hidden: true
+      }
+    ]
   },
 
   {
