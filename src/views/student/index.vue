@@ -54,10 +54,10 @@
     </div>
 
     <!--<div style="clear:both; height:10px;"></div>  更换对齐方式 上下和左右互换时-->
-    <MyDialog :dialog-form-visible="dialogFormVisible" :title="title" @backBtn="back" @submitBtn="edited?editCheck('form'):submitBtn('form')">
-      //这种是简写方式，也可以写成v-slot:contents，还可以使用作用域
+    <MyDialog :dialog-form-visible="dialogFormVisible" :title="title" @backBtn="back " @resetForm="resetForm" @submitBtn="edited?editCheck('form'):submitBtn('form')">
+
       <template #contents>
-        <!--
+        <!--  #contents是简写方式，也可以写成v-slot:contents，还可以使用作用域
         <label for="name">请输入姓名：</label><br>
         <input v-model="name" type="text" name="name"><br>
         <label for="sex">请输入性别：</label><br>
@@ -107,16 +107,24 @@
 // (  index: 再操作时无法对 全部的数据 有效操作)
 
 // 解决之一: data定义finedObj{fined:false,arr:[]}，如果fine操作或任何操作使得list 更新(未知，先改->)，finedObj.fined改为true，
-//           .vue添加判断，使再操作的参数为根据list的index数组或单个index 获取的 id数组或单个id
-//           mock中,config.body所赋值的 添加判断.fined ,再做不同操作，delete中已写好
+//           .vue添加判断，使再操作的参数为根据list的index数组或单个index 获取的 id数组或单个id，接下来
+//           1、mock中,config.body所赋值的 添加判断.fined ,再做不同操作(delete的注释中已写好类似，方法不好，可改进)
+//           2、不在mock中操作数据，对this.list操作，根据排序后的id最多遍历一遍删除或对某一个编辑
+//           或直接用id为
 // ---已在需要写的位置注释，待写
 
 // 问题二
 
-// (  点删除会让list数据刷新，表格数据显示全部，不能保持finedStatus
+// (  查询后点删除会让list数据刷新，表格数据显示全部，不能保持finedStatus
 //    原因: 删除让list刷新，list在data的return中 表格v-for遍历list
 //    为什么list刷新，v-for也刷新? | -> 可尝试利用props)
 // ---待解决 未查原因，未尝试
+
+// 问题三
+
+// (  增加或编辑结束后，表单无法清空，就算清空了，也暂时没找到方法使在又一次打开
+//    增加界面时，关闭对空白数据的校验，而一进去就有显眼的红色提示语)
+// ---待解决
 import MyDialog from '@/components/MyDialog/index.vue'
 
 import { getStus } from '@/api/student'
@@ -230,6 +238,9 @@ export default {
       this.form.name = this.list[index].name
       this.form.sex = this.list[index].sex
       this.form.birthday = this.list[index].birthday
+      /* this.$nextTick(() => {
+
+      })*/
       this.dialogFormVisible = true
     },
     editCheck(formName) {
@@ -253,6 +264,7 @@ export default {
           return false
         }
       })
+      this.edited = false
     },
     /* update() {
       var that = this
@@ -300,7 +312,12 @@ export default {
       })
     },
     back(b) {
+      if (this.edited === true) {
+        this.edited === false
+      }
       this.dialogFormVisible = b
+    },
+    resetForm() {
     }
     // 获取需要渲染到页面中的数据
     /* setSlist(arr) {

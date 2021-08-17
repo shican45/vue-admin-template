@@ -33,6 +33,9 @@ export default {
   },
   watch: {
     'dialogFormVisible': function(newVal, oldVal) {
+      if (newVal === true) {
+        this.$emit('resetForm')
+      }
       this.visible = newVal
     },
     'visible': function(newVal, oldVal) {
