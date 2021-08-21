@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-08-16 13:28:47
+ * @LastEditTime: 2021-08-20 20:07:10
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \vue-admin-template\src\api\student.js
+ */
 import request from '@/utils/request'
 
 export function getStus(params) {

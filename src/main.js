@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-08-16 13:20:34
+ * @LastEditTime: 2021-08-19 15:44:51
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \vue-admin-template\src\main.js
+ */
 import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
@@ -23,10 +31,11 @@ import '@/permission' // permission control
  * Currently MockJs will be used in the production environment,
  * please remove it before going online ! ! !
  */
+/*
 if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
-}
+}*/
 
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })

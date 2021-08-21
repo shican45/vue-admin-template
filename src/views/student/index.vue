@@ -1,3 +1,11 @@
+<!--
+ * @Author: hongsc
+ * @Date: 2021-08-16 13:30:53
+ * @LastEditTime: 2021-08-20 23:33:30
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \vue-admin-template\src\views\student\index.vue
+-->
 <template>
   <!--在此处添加渲染的内容-->
   <div>
@@ -42,12 +50,12 @@
         </tr>
         <tr v-for="(item, index) of list" v-cloak :key="index">
           <!--<td>{{ item.id+1 }}</td>-->
-          <td style=""><input v-model="checkedArr" :value="index" type="checkbox"></td>
+          <td style=""><input v-model="checkedArr" :value="item.id" type="checkbox"></td>
           <td>{{ index + 1 }}</td>
           <td>{{ item.name }}</td>
           <td>{{ item.sex }}</td>
           <td>{{ item.birthday }}</td>
-          <td><div style="color:#409EFF;"><a href="javascript:;" style="margin-right:10%;" @click="singleDel(index)">删除</a>
+          <td><div style="color:#409EFF;"><a href="javascript:;" style="margin-right:10%;" @click="singleDel(item.id)">删除</a>
             <a href="javascript:;" style="margin-left:10%;" @click="edit(index)">编辑</a></div></td>
         </tr>
       </table>
@@ -211,9 +219,9 @@ export default {
         })
       }
     },
-    singleDel(index) {
+    singleDel(itemId) {
       //                                             待判断是否根据list的index数组或单个index 获取的 id数组或单个id
-      this.checkedArr[0] = index
+      this.checkedArr[0] = itemId
       // console.log(this.checkedArr)
       delStus(this.checkedArr).then(response => {
         this.list = response.data.items
@@ -222,9 +230,12 @@ export default {
       this.checkedArr = []
     },
     deleteList() {
-      // console.log(this.checkedArr)
       // console.log(this.list)
       //                                             待判断是否根据list的index数组或单个index 获取的 id数组或单个id
+      /** for (let i = 0; i < this.checkedArr.length; i++) {
+        this.checkedArr[i] = this.list[i].id
+      }*/
+      this.checkedArr.sort
       delStus(this.checkedArr).then(response => {
         this.list = response.data.items
         //                                                  finedObj.fined改为false
@@ -235,6 +246,7 @@ export default {
       this.edited = true
       this.editedIndex = index
       this.title = '编辑学生信息'
+      this.form.id = this.list[index].id
       this.form.name = this.list[index].name
       this.form.sex = this.list[index].sex
       this.form.birthday = this.list[index].birthday
@@ -243,6 +255,19 @@ export default {
       })*/
       this.dialogFormVisible = true
     },
+
+    /**
+     * ctrl + alt + i:头部注释
+     * ctrl + alt + t:函数注释
+     * vue+ enter vue模板
+     * @description: 1
+     * @param {*} formName
+     * @return {*}
+     * @Date: 2021-08-19 13:12:21
+     * @LastEditors: hongsc
+     * @LastEditTime: Do not edit
+     * @editor.suggestSelection: none
+     */
     editCheck(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -250,6 +275,7 @@ export default {
           //                                             待判断是否转换为id
           this.editObj.index = this.editedIndex
           this.editObj.stu = this.form
+          console.log(this.editObj.stu.birthday)
           // alert(this.form.birthday)
           editStu(this.editObj).then(response => {
             this.list = response.data.items
@@ -294,6 +320,7 @@ export default {
         if (valid) {
           // console.log('submit!')
           this.obj = this.form
+          this.obj.id = this.list[this.list.length - 1].id + 1
           // alert(this.form.birthday)
           addStus(this.obj).then(response => {
             this.list = response.data.items
