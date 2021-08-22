@@ -1,41 +1,86 @@
-<!--
- * @Author: hongsc
- * @Date: 2021-08-16 13:30:53
- * @LastEditTime: 2021-08-20 23:33:30
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \vue-admin-template\src\views\student\index.vue
--->
 <template>
-  <!--在此处添加渲染的内容-->
   <div>
     <div>
-      <div style="float:left;">
-        <div style="float:left;margin:28px 5px 0px 15px;">
-          <span>姓名</span>
+      <div style="float:left;margin-left:270px;">
+        <div style="float:left;margin:34px 15px 0px 0px;">
+          <span>姓名:</span>
         </div>
         <div style="float:left;margin-top:25px;">
-          <input v-model="searchObj.name" style="width:300px;" placeholder="">
+          <el-input v-model="searchObj.name" style="width:300px;" placeholder="" />
         </div>
       </div>
 
-      <div style="float:right;">
-        <div style="float:right;margin:15px 20px;color:#409EFF;font-size:50%;">
-          <a href="#/student/table">高级搜索</a>
+      <div style="float:left;margin-left:300px;">
+        <div style="float:left;margin-top:25px;">
+          <el-button type="primary" icon="el-icon-search" @click="search(searchObj.name)">查询</el-button>
         </div>
-        <div style="float:right;margin-top:15px;">
-          <el-button style="font-size:50%;width:150px;height:43px;" type="primary" @click="search(searchObj.name)">查询</el-button>
+        <div style="float:left;margin:25px 0px 0px 20px;color:#409EFF;font-size:50%;">
+          <a href="#/student/table">高级搜索</a>
         </div>
       </div>
     </div>
     <div style="clear:both; height:10px;" />
-    <hr style="margin-bottom:0px">
-    <div>
-      <el-button type="primary" style="width:100px;height:43px;" @click="title = '添加学生信息';dialogFormVisible = true">增加</el-button>
+    <el-divider />
+    <div style="widyh: 100%">
+      <el-button type="primary" style="margin-left: 270px;width:100px;height:43px;" @click="title = '添加学生信息';dialogFormVisible = true">增加</el-button>
       <el-button type="danger" style="width:100px;height:43px;" @click="deleteList">删除</el-button>
     </div>
     <div style="clear:both; height:10px;" />
-    <div>
+    <div style="width: 830px">
+      <el-table
+        v-cloak
+        ref="multipleTable"
+        :data="list"
+        stripe
+        border
+        tooltip-effect="dark"
+        style="width: 100%;margin: 0px 270px;"
+        @selection-change="handleSelectionChange"
+        @current-change="handleCurrentChange"
+      >
+        <el-table-column
+          type="selection"
+          width="55"
+        />
+        <el-table-column
+          type="index"
+          label="序号"
+          width="50"
+        />
+        <el-table-column
+          prop="name"
+          label="姓名"
+          width="180"
+        />
+        <el-table-column
+          prop="sex"
+          label="性别"
+          width="180"
+        />
+        <el-table-column
+          prop="birthday"
+          label="生日"
+          width="180"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          label="操作"
+        >
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="singleDel(scope.$index)"
+            >删除</el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="edit(scope.$index)"
+            >编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <!--<div>
       <table
         v-loading="listLoading"
         class="stu-table"
@@ -49,7 +94,6 @@
           <th style="width:23%">操作</th>
         </tr>
         <tr v-for="(item, index) of list" v-cloak :key="index">
-          <!--<td>{{ item.id+1 }}</td>-->
           <td style=""><input v-model="checkedArr" :value="item.id" type="checkbox"></td>
           <td>{{ index + 1 }}</td>
           <td>{{ item.name }}</td>
@@ -59,7 +103,8 @@
             <a href="javascript:;" style="margin-left:10%;" @click="edit(index)">编辑</a></div></td>
         </tr>
       </table>
-    </div>
+    </div>-->
+    <!--<td>{{ item.id+1 }}</td>-->
 
     <!--<div style="clear:both; height:10px;"></div>  更换对齐方式 上下和左右互换时-->
     <MyDialog :dialog-form-visible="dialogFormVisible" :title="title" @backBtn="back " @resetForm="resetForm" @submitBtn="edited?editCheck('form'):submitBtn('form')">
@@ -97,50 +142,18 @@
         </el-form>
       </template>
     </MyDialog>
-
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 
-// find后再操作出错
-
-// 问题一
-
-// 多选删     是根据checkbox绑定的值
-// (  id: 无法根据复选框状态传递index数组，全部数据时操作慢
-//    index: 无法根据复选框状态传递id数组，再操作时无法对 全部的数据 有效操作)
-// 单个方法(删、编辑)   的参数
-// (  id: 全部数据时操作慢)
-// (  index: 再操作时无法对 全部的数据 有效操作)
-
-// 解决之一: data定义finedObj{fined:false,arr:[]}，如果fine操作或任何操作使得list 更新(未知，先改->)，finedObj.fined改为true，
-//           .vue添加判断，使再操作的参数为根据list的index数组或单个index 获取的 id数组或单个id，接下来
-//           1、mock中,config.body所赋值的 添加判断.fined ,再做不同操作(delete的注释中已写好类似，方法不好，可改进)
-//           2、不在mock中操作数据，对this.list操作，根据排序后的id最多遍历一遍删除或对某一个编辑
-//           或直接用id为
-// ---已在需要写的位置注释，待写
-
-// 问题二
-
-// (  查询后点删除会让list数据刷新，表格数据显示全部，不能保持finedStatus
-//    原因: 删除让list刷新，list在data的return中 表格v-for遍历list
-//    为什么list刷新，v-for也刷新? | -> 可尝试利用props)
-// ---待解决 未查原因，未尝试
-
-// 问题三
-
-// (  增加或编辑结束后，表单无法清空，就算清空了，也暂时没找到方法使在又一次打开
-//    增加界面时，关闭对空白数据的校验，而一进去就有显眼的红色提示语)
-// ---待解决
 import MyDialog from '@/components/MyDialog/index.vue'
-
 import { getStus } from '@/api/student'
 import { searchStus } from '@/api/student'
 import { delStus } from '@/api/student'
 import { editStu } from '@/api/student'
 import { addStus } from '@/api/student'
-// 将渲染的内容导出
+
 export default {
   components: { MyDialog },
   props: {},
@@ -149,6 +162,7 @@ export default {
       dialogFormVisible: false,
       title: '父组件标题',
       checkedArr: [],
+      checkedItemArr: [],
       list: [],
       listLoading: true,
       addCheckLoading: false,
@@ -163,9 +177,6 @@ export default {
       searchObj: {
         name: ''
       },
-      // name: '',
-      // sex: '',
-      // birthday: '',
       obj: {
         id: 0,
         name: '',
@@ -195,8 +206,6 @@ export default {
   },
   created() {
     this.getData()
-    // console.log(Date.now())
-    // this.setSlist(this.list)
   },
   methods: {
     getData() {
@@ -204,8 +213,12 @@ export default {
       getStus().then(response => {
         this.list = response.data.items
         this.listLoading = false
-        //                                                  finedObj.fined改为false
       })
+    },
+    handleSelectionChange(val) {
+      this.checkedItemArr = val
+      // 选中时，就已执行 this.$refs.multipleTable.toggleRowSelection(val)总的
+      // this.$refs.multipleTable.selection 单击一行的行数据
     },
     search(searchName) {
       if (searchName === '') {
@@ -215,32 +228,50 @@ export default {
         searchStus(this.searchObj).then(response => {
           this.list = response.data.items
           this.listLoading = false
-        //                                                  finedObj.fined改为true
         })
       }
     },
-    singleDel(itemId) {
-      //                                             待判断是否根据list的index数组或单个index 获取的 id数组或单个id
-      this.checkedArr[0] = itemId
-      // console.log(this.checkedArr)
-      delStus(this.checkedArr).then(response => {
-        this.list = response.data.items
-        //                                                  finedObj.fined改为false
+    singleDel(itemIndex) {
+      this.checkedArr[0] = this.list[itemIndex].id
+      this.$confirm('确定删除?', '删除提示', {
+        cancelButtonText: '取消',
+        confirmButtonText: '确定',
+        type: 'warning'
+      }).then(() => {
+        delStus(this.checkedArr).then(response => {
+          this.list = response.data.items
+        })
+        this.checkedArr = []
       })
-      this.checkedArr = []
     },
     deleteList() {
-      // console.log(this.list)
-      //                                             待判断是否根据list的index数组或单个index 获取的 id数组或单个id
-      /** for (let i = 0; i < this.checkedArr.length; i++) {
-        this.checkedArr[i] = this.list[i].id
-      }*/
+      for (let i = 0; i < this.checkedItemArr.length; i++) {
+        this.checkedArr[i] = this.checkedItemArr[i].id
+      }
       this.checkedArr.sort
-      delStus(this.checkedArr).then(response => {
-        this.list = response.data.items
-        //                                                  finedObj.fined改为false
-      })
-      this.checkedArr = []
+      if (this.checkedArr.length > 0) {
+        this.$confirm('确定删除?', '删除提示', {
+          cancelButtonText: '取消',
+          confirmButtonText: '确定',
+          type: 'warning'
+        }).then(() => {
+          delStus(this.checkedArr).then(response => {
+            this.list = response.data.items
+          })
+          this.checkedArr = []
+          this.$refs.multipleTable.clearSelection()
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+        })
+      } else {
+        this.$message({
+          message: '请先选择数据',
+          type: 'warning'
+        })
+      }
     },
     edit(index) {
       this.edited = true
@@ -250,38 +281,19 @@ export default {
       this.form.name = this.list[index].name
       this.form.sex = this.list[index].sex
       this.form.birthday = this.list[index].birthday
-      /* this.$nextTick(() => {
-
-      })*/
+      // this.$nextTick(() => {}) 下次Dom更新
       this.dialogFormVisible = true
     },
-
-    /**
-     * ctrl + alt + i:头部注释
-     * ctrl + alt + t:函数注释
-     * vue+ enter vue模板
-     * @description: 1
-     * @param {*} formName
-     * @return {*}
-     * @Date: 2021-08-19 13:12:21
-     * @LastEditors: hongsc
-     * @LastEditTime: Do not edit
-     * @editor.suggestSelection: none
-     */
     editCheck(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          // console.log('submit!')
-          //                                             待判断是否转换为id
           this.editObj.index = this.editedIndex
           this.editObj.stu = this.form
           console.log(this.editObj.stu.birthday)
           // alert(this.form.birthday)
           editStu(this.editObj).then(response => {
             this.list = response.data.items
-            //                                                  finedObj.fined改为false
             this.addCheckLoading = false
-            // console.log(this.list)
           })
           this.dialogFormVisible = false
         } else {
@@ -292,27 +304,8 @@ export default {
       })
       this.edited = false
     },
-    /* update() {
-      var that = this
-      // console.log(this.obj)
-      this.$axios
-        .post('/vue-admin-template/student/update', {
-          params: {
-            obj: this.obj
-          }
-        })
-        .then(function(res) {
-        // console.log("请求的数据"+res.data.data);
-          that.list = res.data.data
-        })
-    },*/
     submitBtn(formName) {
-      // this.obj.name = this.name
-      // this.obj.sex = this.sex
-      // this.obj.birthday = this.birthday
-      // console.log(this.obj)
       this.addCheckLoading = true
-      // eslint-disable-next-line no-implied-eval
       this.timer = setInterval(this.checked, 500, formName)
     },
     checked(formName) {
@@ -324,7 +317,6 @@ export default {
           // alert(this.form.birthday)
           addStus(this.obj).then(response => {
             this.list = response.data.items
-            //                                                  finedObj.fined改为false
             this.addCheckLoading = false
             // console.log(this.list)
           })
@@ -346,10 +338,6 @@ export default {
     },
     resetForm() {
     }
-    // 获取需要渲染到页面中的数据
-    /* setSlist(arr) {
-      this.slist = JSON.parse(JSON.stringify(arr))
-    },*/
   }
 }
 </script>
@@ -361,11 +349,9 @@ export default {
   border-color: #48D1CC;
   color: #fff;
 }
-
 [v-cloak] {
   display: none
 }
-
 .stu-table {
   border: 1px solid rgb(31, 28, 28);
   padding: 0;
